@@ -1,8 +1,10 @@
-import { MulticastEvent } from "./event/MulticastEvent";
-import { router } from "./eventRouters/router";
+import { config } from "dotenv";
+import { System } from "./facades/System";
 
-const event = new MulticastEvent(router)
-event.listen();
+config();
+const system = new System();
+
+system.init();
 
 
 

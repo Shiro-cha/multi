@@ -1,11 +1,10 @@
+import { SystemController } from "../controllers/SystemController";
 import { EventRouter } from "../event/RouterEvent";
 
 const router = new EventRouter();
+const {init} = new SystemController();
 
-router.addRoute("/",function(){
-    console.log("Hello world");
-    
-})
+router.addRoute("/hello-world",init);
 
 export {
     router
