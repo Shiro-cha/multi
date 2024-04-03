@@ -4,8 +4,10 @@ import { Service } from "typedi";
 @Service()
 export class LocalService{
  constructor(
-    private filePath:string
- ){}
+    private filePath:string= (process.env.DATABASE_PATH as string)
+ ){
+   
+ }
 
  getFilePath():string{
     return this.filePath;
@@ -16,7 +18,14 @@ export class LocalService{
     return fileContent.toString();
  }
  write(data:any):void{
-    fs.writeFileSync(this.filePath,JSON.stringify(data));
+   try {
+      fs.writeFileSync(this.filePath,JSON.stringify(data));
+      
+   } catch (error) {
+      console.error(error);
+      
+   }
+    
  }
  delete():void{
     fs.rmSync(this.filePath);
