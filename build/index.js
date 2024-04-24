@@ -909,12 +909,39 @@ var import_typedi2 = __toESM(require_cjs(), 1);
 // core/Multicast.ts
 var import_typedi = __toESM(require_cjs(), 1);
 import dgram, {Socket} from "node:dgram";
+
+// core/Network.ts
+import {networkInterfaces} from "os";
+
+class Network {
+  getInterfaces() {
+    const interfaces = Object.keys(networkInterfaces()).filter((name) => name !== "lo");
+    return interfaces;
+  }
+  getIpv4Info(name) {
+    return this.getIpInfo("IPv4", name);
+  }
+  getIpv6Info(name) {
+    return this.getIpInfo("IPv6", name);
+  }
+  getIpInfo(family, name) {
+    const interfaceByName = networkInterfaces()[name];
+    if (Array.isArray(interfaceByName) && interfaceByName.length > 0) {
+      return interfaceByName.filter((value) => value.family === family)[0];
+    }
+    return null;
+  }
+}
+
+// core/Multicast.ts
 class Multicast {
+  useInterface;
   udpClient;
   multicastAddress;
   port;
   static instance;
-  constructor(udpClient = null, multicastAddress = "127.0.0.1", port = 5000) {
+  constructor(useInterface, udpClient = null, multicastAddress = "127.0.0.1", port = 5000) {
+    this.useInterface = useInterface;
     this.udpClient = udpClient;
     this.multicastAddress = multicastAddress;
     this.port = port;
@@ -923,20 +950,29 @@ class Multicast {
     if (Multicast.instance) {
       return Multicast.instance;
     }
+    const interfaces = new Network().getInterfaces();
+    const useInterface = interfaces.length > 0 ? interfaces[0] : "lo";
     const udpClient = dgram.createSocket({ type: "udp4", reuseAddr: true });
     udpClient?.bind(port, () => {
       try {
         udpClient?.addMembership(multicastAddress);
       } catch (error) {
+        console.log(error);
         multicastAddress = "127.0.0.1";
         port = 5000;
         console.error("Impossible to join the multicast group, listening on ", multicastAddress + ":" + port);
       }
     });
-    Multicast.instance = new Multicast(udpClient, multicastAddress, port);
+    Multicast.instance = new Multicast(useInterface, udpClient, multicastAddress, port);
     Multicast.instance.multicastAddress = multicastAddress;
     Multicast.instance.port = port;
     return Multicast.instance;
+  }
+  static getConnexion() {
+    return Multicast.instance;
+  }
+  getUseInterface() {
+    return this.useInterface;
   }
   getSocket() {
     return this.udpClient;
@@ -951,6 +987,7 @@ class Multicast {
 Multicast = __legacyDecorateClassTS([
   import_typedi.Service(),
   __legacyMetadataTS("design:paramtypes", [
+    String,
     typeof Socket === "undefined" ? Object : Socket,
     String,
     Number
@@ -1023,6 +1060,348 @@ class MulticastEvent {
   }
 }
 
+// services/database/DataManager.ts
+var import_typedi5 = __toESM(require_cjs(), 1);
+
+// services/fileSystem/LocalService.ts
+var import_typedi4 = __toESM(require_cjs(), 1);
+import fs from "fs";
+class LocalService {
+  filePath;
+  constructor(filePath = process.env.DATABASE_PATH) {
+    this.filePath = filePath;
+  }
+  getFilePath() {
+    return this.filePath;
+  }
+  read() {
+    const fileContent = fs.readFileSync(this.filePath);
+    return fileContent.toString();
+  }
+  write(data) {
+    try {
+      fs.writeFileSync(this.filePath, JSON.stringify(data));
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  delete() {
+    fs.rmSync(this.filePath);
+  }
+}
+LocalService = __legacyDecorateClassTS([
+  import_typedi4.Service(),
+  __legacyMetadataTS("design:paramtypes", [
+    String
+  ])
+], LocalService);
+
+// services/database/DataManager.ts
+class DataManager {
+  fileSystem;
+  constructor(fileSystem) {
+    this.fileSystem = fileSystem;
+  }
+  create(data) {
+    let dataList = this.getAllData();
+    const tablename = data.getEntityName();
+    if (!dataList[tablename]) {
+      dataList[tablename] = [];
+    }
+    data.setslug();
+    dataList[tablename].push(data);
+    this.fileSystem.write(dataList);
+  }
+  update(slug, newData) {
+    const dataList = this.getAllData();
+    const tablename = newData.getEntityName();
+    if (Array.isArray(dataList[tablename]) && 0 < dataList[tablename].length) {
+      const data = dataList[tablename];
+      for (let i = 0;i < data.length; i++) {
+        if (data[i].slug === slug) {
+          dataList[tablename][i] = newData;
+          break;
+        }
+      }
+      this.fileSystem.write(dataList);
+      return newData;
+    }
+    return newData;
+  }
+  delete(index, data) {
+    const dataList = this.getAllData();
+    const tablename = data.getEntityName();
+    if (Array.isArray(dataList[tablename]) && index >= 0 && index < dataList[tablename].length) {
+      dataList[tablename].splice(index, 1);
+      this.fileSystem.write(dataList);
+      return true;
+    } else {
+      return false;
+    }
+  }
+  getAllData() {
+    try {
+      const jsonData = this.fileSystem.read();
+      return JSON.parse(jsonData);
+    } catch (error) {
+      this.fileSystem.write({});
+      return {};
+    }
+  }
+}
+DataManager = __legacyDecorateClassTS([
+  import_typedi5.Service(),
+  __legacyMetadataTS("design:paramtypes", [
+    typeof LocalService === "undefined" ? Object : LocalService
+  ])
+], DataManager);
+
+// services/database/DataRepository.ts
+class DataRepository {
+  fileSystem;
+  constructor(fileSystem) {
+    this.fileSystem = fileSystem;
+  }
+  getAllData(table) {
+    const tablename = table.getEntityName();
+    try {
+      const jsonData = this.fileSystem.read();
+      const databaseData = JSON.parse(jsonData);
+      if (!Array.isArray(databaseData[tablename])) {
+        const newTable = { [tablename]: [] };
+        this.fileSystem.write(newTable);
+        return this.createDTO(table, databaseData[tablename]);
+      }
+      return this.createDTO(table, databaseData[tablename]);
+    } catch (error) {
+      const newTable = { [tablename]: [] };
+      this.fileSystem.write(newTable);
+      return this.createDTO(table, newTable[tablename]);
+    }
+  }
+  getBySlug(slug, table) {
+    const tablename = table.getEntityName();
+    const allData = this.getAllData(table);
+    const data = allData.filter((value) => value.getslug() === slug);
+    if (Array.isArray(data) && data.length > 0) {
+      return data[0];
+    } else {
+      return null;
+    }
+  }
+  getDataByIndex(index, table) {
+    const tablename = table.getEntityName();
+    const allData = this.getAllData(table);
+    if (index >= 0 && index < allData.length) {
+      return allData[index];
+    } else {
+      return null;
+    }
+  }
+  createDTO(table, data) {
+    let dtos = [];
+    data.forEach(function(value) {
+      const tempTable = table.create();
+      const dto = tempTable.set(value);
+      dtos.push(dto);
+    });
+    return dtos;
+  }
+}
+
+// core/Database.ts
+class Database {
+  static getManager() {
+    const fileSystem = new LocalService;
+    const manager = new DataManager(fileSystem);
+    return manager;
+  }
+  static getRepository() {
+    const fileSystem = new LocalService;
+    const repository = new DataRepository(fileSystem);
+    return repository;
+  }
+}
+
+// core/Entity.ts
+import {randomBytes} from "crypto";
+
+class Entity {
+  slug = "";
+  getslug() {
+    return this.slug;
+  }
+  setslug() {
+    this.slug = this.generateHash();
+    return this;
+  }
+  generateHash() {
+    const randomize = randomBytes(16);
+    const hash = randomize.toString("hex");
+    return hash;
+  }
+  getMethods() {
+  }
+}
+
+// entity/Idenity.ts
+class Idenity extends Entity {
+  constructor() {
+    super(...arguments);
+  }
+  name = null;
+  physicalAddress = null;
+  ipv4 = null;
+  getname = () => {
+    return this.name;
+  };
+  setname = (name) => {
+    this.name = name;
+    return this;
+  };
+  getphysicalAddress = () => {
+    return this.physicalAddress;
+  };
+  setphysicalAddress = (physicalAddress) => {
+    this.physicalAddress = physicalAddress;
+    return this;
+  };
+  getipv4 = () => {
+    return this.ipv4;
+  };
+  setipv4 = (ipv4) => {
+    this.ipv4 = ipv4;
+    return this;
+  };
+  set(entries) {
+    this.slug = entries.slug;
+    this.name = entries.name, this.physicalAddress = entries.physicalAddress;
+    this.ipv4 = entries.ipv4;
+    return this;
+  }
+  getEntityName() {
+    return "identity";
+  }
+  create() {
+    return new Idenity;
+  }
+}
+
+// facades/Idenity.ts
+class IdentityFacade {
+  repository = Database.getRepository();
+  manager = Database.getManager();
+  get() {
+    let identity = new Idenity;
+    identity = this.repository.getDataByIndex(0, identity);
+    return identity;
+  }
+  update(name) {
+    let identity = this.get();
+    if (identity) {
+      identity.setname(name);
+      this.manager.update(identity.getslug(), identity);
+      return identity;
+    }
+    return null;
+  }
+}
+
+// entity/Search.ts
+class Search extends Entity {
+  constructor() {
+    super(...arguments);
+  }
+  name = null;
+  content = [];
+  status = "requesting";
+  searcher = null;
+  founders = [];
+  getname = () => {
+    return this.name;
+  };
+  setname = (name) => {
+    this.name = name;
+    return this;
+  };
+  getcontent = () => {
+    return this.content;
+  };
+  addcontent = (content) => {
+    this.content.push(content);
+    return this;
+  };
+  setcontent = (contents) => {
+    this.content = contents;
+    return this;
+  };
+  getstatus = () => {
+    return this.status;
+  };
+  setstatus = (status) => {
+    this.status = status;
+    return this;
+  };
+  getsearcher() {
+    return this.searcher;
+  }
+  setsearcher(searcher) {
+    this.searcher = searcher;
+    return this;
+  }
+  getfounders = () => {
+    return this.founders;
+  };
+  addfounders = (founder) => {
+    const existing = this.founders.filter((value) => value.getslug() === founder.getslug());
+    if (existing.length === 0) {
+      this.founders.push(founder);
+    }
+    return this;
+  };
+  setfounders = (founders) => {
+    this.founders = founders;
+    return this;
+  };
+  set(entries) {
+    this.slug = entries.slug;
+    this.name = entries.name, this.content = entries.content;
+    this.status = entries.status;
+    this.searcher = new Idenity;
+    this.searcher.set(entries.searcher);
+    this.founders = entries.founders.map((entry) => new Idenity().set(entry));
+    return this;
+  }
+  getEntityName() {
+    return "search";
+  }
+  create() {
+    return new Search;
+  }
+}
+
+// controllers/SearchController.ts
+class SearchController {
+  search(body) {
+    const searchBody = body.data;
+    const identity = new IdentityFacade().get();
+    const request = new Request(body.socket);
+    const remoteAddress = body.rinfo.address;
+    const remotePort = body.rinfo.port;
+    request.send(remoteAddress, remotePort, { label: "/found", data: { identity, search: searchBody } });
+  }
+  found(body) {
+    const manager = Database.getManager();
+    const repository = Database.getRepository();
+    const slug = body.data.search.slug;
+    const identity = new Idenity().set(body.data.identity);
+    const search = repository.getBySlug(slug, new Search);
+    search?.addfounders(identity);
+    manager.update(slug, search);
+    console.log("Search name:", search?.getslug(), "found by:", identity.getname());
+  }
+}
+
 // controllers/SystemController.ts
 class SystemController {
   init() {
@@ -1031,7 +1410,7 @@ class SystemController {
 }
 
 // event/RouterEvent.ts
-var import_typedi4 = __toESM(require_cjs(), 1);
+var import_typedi6 = __toESM(require_cjs(), 1);
 class EventRouter {
   routes = [];
   addRoute(eventName, controller) {
@@ -1050,13 +1429,32 @@ class EventRouter {
   }
 }
 EventRouter = __legacyDecorateClassTS([
-  import_typedi4.Service()
+  import_typedi6.Service()
 ], EventRouter);
 
 // eventRouters/router.ts
 var router = new EventRouter;
 var { init } = new SystemController;
+var { search, found } = new SearchController;
 router.addRoute("/hello-world", init);
+router.addRoute("/search", search);
+router.addRoute("/found", found);
+
+// services/identity/IdenityService.ts
+class IdentityService {
+  init(server) {
+    const repository = Database.getRepository();
+    const networkInfo = new Network().getIpv4Info(server.getUseInterface());
+    let identity = new Idenity;
+    identity = repository.getDataByIndex(0, identity);
+    if (!identity && networkInfo) {
+      const manager = Database.getManager();
+      identity = new Idenity;
+      identity.setname(networkInfo?.address).setphysicalAddress(networkInfo.mac).setipv4(networkInfo.address);
+      manager.create(identity);
+    }
+  }
+}
 
 // facades/System.ts
 class System {
@@ -1067,26 +1465,183 @@ class System {
     this.multicastport = parseInt(process.env.MULTICAST_PORT || "");
   }
   init() {
+    const server = this.startServer();
+    const identitySerice = new IdentityService;
+    identitySerice.init(server);
+  }
+  stop() {
+    exit(0);
+  }
+  startServer() {
     const server = Multicast.createServer(this.multicastAddress, this.multicastport);
-    const listener = new Listener(server);
-    const event = new MulticastEvent(router, listener);
-    event.listen((error) => {
-      if (error)
-        throw error;
-      console.log(`listening...`);
-    });
     const socket = server.getSocket();
     if (socket) {
       const request = new Request(socket);
       request.send(this.multicastAddress, this.multicastport, { label: "/hello-world", data: "hello world" });
     }
+    const listener = new Listener(server);
+    const event = new MulticastEvent(router, listener);
+    event.listen((error) => {
+      if (error)
+        throw error;
+      console.log(`listening on [${server.getUseInterface()}]`);
+    });
+    return server;
   }
-  stop() {
-    exit(0);
+}
+
+// facades/Search.ts
+import {randomBytes as randomBytes2} from "crypto";
+
+class SearchFacade {
+  manager = Database.getManager();
+  repository = Database.getRepository();
+  create(searchBody) {
+    const newSearch = new Search;
+    const identity = new IdentityFacade().get();
+    const slug = this.generateHash().toString();
+    newSearch.setname(searchBody.name).setcontent(searchBody.content).setstatus("requesting").setsearcher(identity);
+    this.manager.create(newSearch);
+    this.makeRequest(newSearch);
+  }
+  resend() {
+    const searchs = this.getAll();
+    const current = this;
+    searchs.forEach((search2) => {
+      current.makeRequest(search2);
+    });
+  }
+  getAll() {
+    const search2 = new Search;
+    const searchs = this.repository.getAllData(search2);
+    return searchs;
+  }
+  getByStatus(status) {
+    const searchs = this.getAll().filter((value) => value.getstatus() === status);
+    return searchs;
+  }
+  changeStatus(slug, status) {
+    let search2 = new Search;
+    search2 = this.repository.getBySlug(slug, search2);
+    if (search2) {
+      search2.setstatus(status);
+      return this.manager.update(slug, search2);
+    }
+    return null;
+  }
+  delete(index) {
+    const search2 = new Search;
+    this.manager.delete(index, search2);
+  }
+  makeRequest(newSearch) {
+    const server = Multicast.getConnexion();
+    const socket = server.getSocket();
+    if (socket) {
+      const request = new Request(socket);
+      request.send(server.getAddress(), server.getPort(), { label: "/search", data: newSearch });
+    }
+  }
+  generateHash() {
+    const randomize = randomBytes2(16);
+    const hash = randomize.toString("hex");
+    return hash;
+  }
+}
+
+// entity/Chat.ts
+class Chat extends Entity {
+  constructor() {
+    super(...arguments);
+  }
+  name = null;
+  user = null;
+  discussion = [];
+  status = "disabled";
+  getname = () => {
+    return this.name;
+  };
+  setname = (name) => {
+    this.name = name;
+    return this;
+  };
+  getuser = () => {
+    return this.user;
+  };
+  setuser = (user) => {
+    this.user = user;
+    return this;
+  };
+  getdiscussion = () => {
+    return this.discussion;
+  };
+  adddiscussion = (discussion) => {
+    this.discussion.push(discussion);
+    return this;
+  };
+  setdiscussion = (discussions) => {
+    this.discussion = discussions;
+    return this;
+  };
+  getstatus = () => {
+    return this.status;
+  };
+  setstatus = (status) => {
+    this.status = status;
+    return this;
+  };
+  set(entries) {
+    this.slug = entries.slug;
+    console.log("entries", entries.user);
+    this.user = new Idenity;
+    this.user = this.user.set(entries.user);
+    this.name = entries.name, this.discussion = entries.discussion.map((entry) => {
+      return { ...entry, user: new Idenity().set(entry.user) };
+    });
+    this.status = entries.status;
+    return this;
+  }
+  getEntityName() {
+    return "chat";
+  }
+  create() {
+    return new Chat;
+  }
+}
+
+// facades/Chat.ts
+class ChatFacade {
+  repository = Database.getRepository();
+  manager = Database.getManager();
+  new(user_id, message = "", name = null) {
+    const currentUser = new IdentityFacade().get();
+    const user = this.repository.getBySlug(user_id, new Idenity);
+    if (!user) {
+      throw "User not found";
+    }
+    const newChat = new Chat;
+    newChat.setname(name || user.getname()).setuser(user).adddiscussion({ user: currentUser, content: [message] }).setstatus("active");
+    this.manager.create(newChat);
+    this.makeRequest(newChat, user.getipv4());
+    console.log("hererererere");
+  }
+  makeRequest(newChat, address) {
+    const server = Multicast.getConnexion();
+    const socket = server.getSocket();
+    if (socket) {
+      const request = new Request(socket);
+      request.send(address || server.getAddress(), server.getPort(), { label: "/chat", data: newChat });
+    }
   }
 }
 
 // index.ts
 import_dotenv.config();
 var system = new System;
+var search2 = new SearchFacade;
+var identity = new IdentityFacade;
+var network = new Network;
+var chat = new ChatFacade;
 system.init();
+identity.update("Nomena Fitiavana");
+search2.create({ name: "Test", content: [] });
+search2.resend();
