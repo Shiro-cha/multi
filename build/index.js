@@ -1548,11 +1548,100 @@ class SearchFacade {
   }
 }
 
+// entity/Chat.ts
+class Chat extends Entity {
+  constructor() {
+    super(...arguments);
+  }
+  name = null;
+  user = null;
+  discussion = [];
+  status = "disabled";
+  getname = () => {
+    return this.name;
+  };
+  setname = (name) => {
+    this.name = name;
+    return this;
+  };
+  getuser = () => {
+    return this.user;
+  };
+  setuser = (user) => {
+    this.user = user;
+    return this;
+  };
+  getdiscussion = () => {
+    return this.discussion;
+  };
+  adddiscussion = (discussion) => {
+    this.discussion.push(discussion);
+    return this;
+  };
+  setdiscussion = (discussions) => {
+    this.discussion = discussions;
+    return this;
+  };
+  getstatus = () => {
+    return this.status;
+  };
+  setstatus = (status) => {
+    this.status = status;
+    return this;
+  };
+  set(entries) {
+    this.slug = entries.slug;
+    console.log("entries", entries.user);
+    this.user = new Idenity;
+    this.user = this.user.set(entries.user);
+    this.name = entries.name, this.discussion = entries.discussion.map((entry) => {
+      return { ...entry, user: new Idenity().set(entry.user) };
+    });
+    this.status = entries.status;
+    return this;
+  }
+  getEntityName() {
+    return "chat";
+  }
+  create() {
+    return new Chat;
+  }
+}
+
+// facades/Chat.ts
+class ChatFacade {
+  repository = Database.getRepository();
+  manager = Database.getManager();
+  new(user_id, message = "", name = null) {
+    const currentUser = new IdentityFacade().get();
+    const user = this.repository.getBySlug(user_id, new Idenity);
+    if (!user) {
+      throw "User not found";
+    }
+    const newChat = new Chat;
+    newChat.setname(name || user.getname()).setuser(user).adddiscussion({ user: currentUser, content: [message] }).setstatus("active");
+    this.manager.create(newChat);
+    this.makeRequest(newChat, user.getipv4());
+    console.log("hererererere");
+  }
+  makeRequest(newChat, address) {
+    const server = Multicast.getConnexion();
+    const socket = server.getSocket();
+    if (socket) {
+      const request = new Request(socket);
+      request.send(address || server.getAddress(), server.getPort(), { label: "/chat", data: newChat });
+    }
+  }
+}
+
 // index.ts
 import_dotenv.config();
 var system = new System;
 var search2 = new SearchFacade;
 var identity = new IdentityFacade;
 var network = new Network;
+var chat = new ChatFacade;
 system.init();
-identity.update("Shiro Yami");
+identity.update("Nomena Fitiavana");
+search2.create({ name: "Test", content: [] });
+search2.resend();
