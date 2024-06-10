@@ -22,7 +22,6 @@ export class ChatFacade{
         
         this.manager.create(newChat);
         this.makeRequest(newChat,user.getipv4());
-        console.log("hererererere");
         
 
     }

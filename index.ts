@@ -13,11 +13,10 @@ const network = new Network();
 const chat = new ChatFacade();
 
 system.init();
-identity.update("Nomena Fitiavana")
+identity.update("Shiro Yami")
 search.create({name:"Test",content:[]});
 search.resend();
-
-// chat.new("7d771af668c6d81f8d0bf3539bdb2e2a","hello world");
+chat.new("edf5c923df3de39eb23291200027a01f","hello world");
 
 
 

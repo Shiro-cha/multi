@@ -1060,6 +1060,14 @@ class MulticastEvent {
   }
 }
 
+// controllers/ChatController.ts
+class ChatController {
+  newChat(req) {
+    const { data } = req;
+    console.log("chat", data.discussion);
+  }
+}
+
 // services/database/DataManager.ts
 var import_typedi5 = __toESM(require_cjs(), 1);
 
@@ -1436,9 +1444,11 @@ EventRouter = __legacyDecorateClassTS([
 var router = new EventRouter;
 var { init } = new SystemController;
 var { search, found } = new SearchController;
+var { newChat } = new ChatController;
 router.addRoute("/hello-world", init);
 router.addRoute("/search", search);
 router.addRoute("/found", found);
+router.addRoute("/chat", newChat);
 
 // services/identity/IdenityService.ts
 class IdentityService {
@@ -1618,18 +1628,17 @@ class ChatFacade {
     if (!user) {
       throw "User not found";
     }
-    const newChat = new Chat;
-    newChat.setname(name || user.getname()).setuser(user).adddiscussion({ user: currentUser, content: [message] }).setstatus("active");
-    this.manager.create(newChat);
-    this.makeRequest(newChat, user.getipv4());
-    console.log("hererererere");
+    const newChat2 = new Chat;
+    newChat2.setname(name || user.getname()).setuser(user).adddiscussion({ user: currentUser, content: [message] }).setstatus("active");
+    this.manager.create(newChat2);
+    this.makeRequest(newChat2, user.getipv4());
   }
-  makeRequest(newChat, address) {
+  makeRequest(newChat2, address) {
     const server = Multicast.getConnexion();
     const socket = server.getSocket();
     if (socket) {
       const request = new Request(socket);
-      request.send(address || server.getAddress(), server.getPort(), { label: "/chat", data: newChat });
+      request.send(address || server.getAddress(), server.getPort(), { label: "/chat", data: newChat2 });
     }
   }
 }
@@ -1642,6 +1651,7 @@ var identity = new IdentityFacade;
 var network = new Network;
 var chat = new ChatFacade;
 system.init();
-identity.update("Nomena Fitiavana");
+identity.update("Shiro Yami");
 search2.create({ name: "Test", content: [] });
 search2.resend();
+chat.new("edf5c923df3de39eb23291200027a01f", "hello world");
