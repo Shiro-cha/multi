@@ -2,6 +2,10 @@
   "name": "multicast-search",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "compile":"bun build clients/cli/Ar.ts --outdir build --target node",
+    "cli":"bun build clients/cli/Ar.ts --outdir build --target node && node build/Ar.js start"
+  },
   "devDependencies": {
     "bun-types": "latest"
   },
