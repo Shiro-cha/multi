@@ -1,3 +1,4 @@
+import { config } from "dotenv";
 import { exit } from "node:process";
 import { Listener } from "../core/Listener";
 import { Multicast } from "../core/Multicast";
@@ -6,6 +7,7 @@ import { MulticastEvent } from "../event/MulticastEvent";
 import { router } from "../eventRouters/router";
 import { IdentityService } from "../services/identity/IdenityService";
 
+config()
 export class System{
 
     private multicastAddress:string | undefined;
@@ -21,6 +23,7 @@ export class System{
         const server = this.startServer();
         const identitySerice = new IdentityService();
         identitySerice.init(server)
+        
     }
     stop():void{
         exit(0);

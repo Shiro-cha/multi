@@ -28,6 +28,8 @@ export class SearchFacade{
     }
 
     resend(){
+        console.log("resend.....");
+        
         const searchs = this.getAll();
         const current = this;
         searchs.forEach((search):void=>{
@@ -56,9 +58,11 @@ export class SearchFacade{
         return null;
     }
 
-    delete(index:number){
+    delete(slug:string){
+        console.log("delete....");
+        
         const search = new Search();
-        this.manager.delete(index,search);
+        this.manager.delete(slug,search);
     }
 
 
@@ -66,10 +70,11 @@ export class SearchFacade{
         const server = Multicast.getConnexion();
 
         const socket = server.getSocket();
-        if(socket){
-            const request = new Request(socket);
-            request.send(server.getAddress(),server.getPort(),{label:"/search",data:newSearch})
+        if(!socket){
+            throw "Failed to connect"
         }
+        const request = new Request(socket);
+        request.send(server.getAddress(),server.getPort(),{label:"/search",data:newSearch})
     }
     private generateHash(){
         const randomize = randomBytes(16);
