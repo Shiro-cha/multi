@@ -9599,7 +9599,7 @@ class AbstractFileContext {
     return matchs;
   }
   isValidDir(dir) {
-    const exceptions = ["node_modules", "vendor", ".git"];
+    const exceptions = ["node_modules", "vendor", ".git", "AppData", "Application Data", "Cookies"];
     const isDirectory = statSync(dir).isDirectory();
     let includeExceptions = false;
     exceptions.forEach((exception) => {
@@ -9726,6 +9726,7 @@ class SearchController {
     const manager = Database.getManager();
     const repository = Database.getRepository();
     const slug = body.data.search.slug;
+    console.log("body data ", body.data.identity);
     const identity = new Idenity().set(body.data.identity);
     const search = repository.getBySlug(slug, new Search);
     search?.addfounders(identity);
@@ -9779,8 +9780,9 @@ class IdentityService {
   init(server) {
     const repository = Database.getRepository();
     const networkInfo = new Network().getIpv4Info(server.getUseInterface());
+    console.log("networkInfo", networkInfo);
     let identity = new Idenity;
-    identity = repository.getDataByIndex(0, identity);
+    identity = repository.getBySlug(identity.getslug(), identity);
     if (!identity && networkInfo) {
       const manager = Database.getManager();
       identity = new Idenity;

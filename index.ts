@@ -13,21 +13,8 @@ const network = new Network();
 const chat = new ChatFacade();
 
 system.init();
-identity.update("Shiro Yami");
-search.create({name:"Teste",content:[{keys:["bad at love"],extension:".mp3"}]});
-// await search.resend();
-await search.delete("b0392ffee156ca704d88abda5bde7cfc");
-// chat.new("edf5c923df3de39eb23291200027a01f","hello world");
-
-const evt = AppEvent.create();
-
-evt.on("hello").then(function(){
-    console.log("hello event");
-})
-
-setTimeout(function(){
-    evt.emit("hello");
-},2000)
+identity.update("Shiro y");
+search.create({name:"Teste",content:[{keys:["Halsey"],extension:".mp3"}]});
 
 
 

@@ -1,7 +1,7 @@
 import {createRequire} from "node:module";
 var __create = Object.create;
-var __defProp = Object.defineProperty;
 var __getProtoOf = Object.getPrototypeOf;
+var __defProp = Object.defineProperty;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __toESM = (mod, isNodeMode, target) => {
@@ -30,7 +30,7 @@ var __legacyMetadataTS = (k, v) => {
   if (typeof Reflect === "object" && typeof Reflect.metadata === "function")
     return Reflect.metadata(k, v);
 };
-var __require = createRequire(import.meta.url);
+var __require = /* @__PURE__ */ createRequire(import.meta.url);
 
 // node_modules/dotenv/package.json
 var require_package = __commonJS((exports, module) => {
@@ -103,7 +103,7 @@ var require_package = __commonJS((exports, module) => {
 
 // node_modules/dotenv/lib/main.js
 var require_main = __commonJS((exports, module) => {
-  var parse = function(src) {
+  function parse(src) {
     const obj = {};
     let lines = src.toString();
     lines = lines.replace(/\r\n?/mg, "\n");
@@ -121,8 +121,8 @@ var require_main = __commonJS((exports, module) => {
       obj[key] = value;
     }
     return obj;
-  };
-  var _parseVault = function(options) {
+  }
+  function _parseVault(options) {
     const vaultPath = _vaultPath(options);
     const result = DotenvModule.configDotenv({ path: vaultPath });
     if (!result.parsed) {
@@ -146,17 +146,17 @@ var require_main = __commonJS((exports, module) => {
       }
     }
     return DotenvModule.parse(decrypted);
-  };
-  var _log = function(message) {
+  }
+  function _log(message) {
     console.log(`[dotenv@${version}][INFO] ${message}`);
-  };
-  var _warn = function(message) {
+  }
+  function _warn(message) {
     console.log(`[dotenv@${version}][WARN] ${message}`);
-  };
-  var _debug = function(message) {
+  }
+  function _debug(message) {
     console.log(`[dotenv@${version}][DEBUG] ${message}`);
-  };
-  var _dotenvKey = function(options) {
+  }
+  function _dotenvKey(options) {
     if (options && options.DOTENV_KEY && options.DOTENV_KEY.length > 0) {
       return options.DOTENV_KEY;
     }
@@ -164,8 +164,8 @@ var require_main = __commonJS((exports, module) => {
       return process.env.DOTENV_KEY;
     }
     return "";
-  };
-  var _instructions = function(result, dotenvKey) {
+  }
+  function _instructions(result, dotenvKey) {
     let uri;
     try {
       uri = new URL(dotenvKey);
@@ -197,8 +197,8 @@ var require_main = __commonJS((exports, module) => {
       throw err;
     }
     return { ciphertext, key };
-  };
-  var _vaultPath = function(options) {
+  }
+  function _vaultPath(options) {
     let possibleVaultPath = null;
     if (options && options.path && options.path.length > 0) {
       if (Array.isArray(options.path)) {
@@ -217,11 +217,11 @@ var require_main = __commonJS((exports, module) => {
       return possibleVaultPath;
     }
     return null;
-  };
-  var _resolveHome = function(envPath) {
+  }
+  function _resolveHome(envPath) {
     return envPath[0] === "~" ? path.join(os.homedir(), envPath.slice(1)) : envPath;
-  };
-  var _configVault = function(options) {
+  }
+  function _configVault(options) {
     _log("Loading env from encrypted .env.vault");
     const parsed = DotenvModule._parseVault(options);
     let processEnv = process.env;
@@ -230,8 +230,8 @@ var require_main = __commonJS((exports, module) => {
     }
     DotenvModule.populate(processEnv, parsed, options);
     return { parsed };
-  };
-  var configDotenv = function(options) {
+  }
+  function configDotenv(options) {
     const dotenvPath = path.resolve(process.cwd(), ".env");
     let encoding = "utf8";
     const debug = Boolean(options && options.debug);
@@ -276,8 +276,8 @@ var require_main = __commonJS((exports, module) => {
     } else {
       return { parsed: parsedAll };
     }
-  };
-  var config = function(options) {
+  }
+  function config(options) {
     if (_dotenvKey(options).length === 0) {
       return DotenvModule.configDotenv(options);
     }
@@ -287,8 +287,8 @@ var require_main = __commonJS((exports, module) => {
       return DotenvModule.configDotenv(options);
     }
     return DotenvModule._configVault(options);
-  };
-  var decrypt = function(encrypted, keyStr) {
+  }
+  function decrypt(encrypted, keyStr) {
     const key = Buffer.from(keyStr.slice(-64), "hex");
     let ciphertext = Buffer.from(encrypted, "base64");
     const nonce = ciphertext.subarray(0, 12);
@@ -314,8 +314,8 @@ var require_main = __commonJS((exports, module) => {
         throw error;
       }
     }
-  };
-  var populate = function(processEnv, parsed, options = {}) {
+  }
+  function populate(processEnv, parsed, options = {}) {
     const debug = Boolean(options && options.debug);
     const override = Boolean(options && options.override);
     if (typeof parsed !== "object") {
@@ -339,7 +339,7 @@ var require_main = __commonJS((exports, module) => {
         processEnv[key] = parsed[key];
       }
     }
-  };
+  }
   var fs = __require("fs");
   var path = __require("path");
   var os = __require("os");
@@ -735,7 +735,7 @@ var require_cannot_inject_value_error = __commonJS((exports) => {
 
 // node_modules/typedi/cjs/utils/resolve-to-type-wrapper.util.js
 var require_resolve_to_type_wrapper_util = __commonJS((exports) => {
-  var resolveToTypeWrapper = function(typeOrIdentifier, target, propertyName, index) {
+  function resolveToTypeWrapper(typeOrIdentifier, target, propertyName, index) {
     let typeWrapper;
     if (typeOrIdentifier && typeof typeOrIdentifier === "string" || typeOrIdentifier instanceof token_class_1.Token) {
       typeWrapper = { eagerType: typeOrIdentifier, lazyType: () => typeOrIdentifier };
@@ -753,7 +753,7 @@ var require_resolve_to_type_wrapper_util = __commonJS((exports) => {
       typeWrapper = { eagerType: identifier, lazyType: () => identifier };
     }
     return typeWrapper;
-  };
+  }
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.resolveToTypeWrapper = undefined;
   var token_class_1 = require_token_class();
@@ -762,7 +762,7 @@ var require_resolve_to_type_wrapper_util = __commonJS((exports) => {
 
 // node_modules/typedi/cjs/decorators/inject-many.decorator.js
 var require_inject_many_decorator = __commonJS((exports) => {
-  var InjectMany = function(typeOrIdentifier) {
+  function InjectMany(typeOrIdentifier) {
     return function(target, propertyName, index) {
       const typeWrapper = resolve_to_type_wrapper_util_1.resolveToTypeWrapper(typeOrIdentifier, target, propertyName, index);
       if (typeWrapper === undefined || typeWrapper.eagerType === undefined || typeWrapper.eagerType === Object) {
@@ -781,7 +781,7 @@ var require_inject_many_decorator = __commonJS((exports) => {
         }
       });
     };
-  };
+  }
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.InjectMany = undefined;
   var container_class_1 = require_container_class();
@@ -792,7 +792,7 @@ var require_inject_many_decorator = __commonJS((exports) => {
 
 // node_modules/typedi/cjs/decorators/inject.decorator.js
 var require_inject_decorator = __commonJS((exports) => {
-  var Inject = function(typeOrIdentifier) {
+  function Inject(typeOrIdentifier) {
     return function(target, propertyName, index) {
       const typeWrapper = resolve_to_type_wrapper_util_1.resolveToTypeWrapper(typeOrIdentifier, target, propertyName, index);
       if (typeWrapper === undefined || typeWrapper.eagerType === undefined || typeWrapper.eagerType === Object) {
@@ -811,7 +811,7 @@ var require_inject_decorator = __commonJS((exports) => {
         }
       });
     };
-  };
+  }
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.Inject = undefined;
   var container_class_1 = require_container_class();
@@ -822,7 +822,7 @@ var require_inject_decorator = __commonJS((exports) => {
 
 // node_modules/typedi/cjs/decorators/service.decorator.js
 var require_service_decorator = __commonJS((exports) => {
-  var Service = function(optionsOrServiceIdentifier) {
+  function Service(optionsOrServiceIdentifier) {
     return (targetConstructor) => {
       const serviceMetadata = {
         id: targetConstructor,
@@ -846,7 +846,7 @@ var require_service_decorator = __commonJS((exports) => {
       }
       container_class_1.Container.set(serviceMetadata);
     };
-  };
+  }
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.Service = undefined;
   var container_class_1 = require_container_class();
@@ -1053,9 +1053,9 @@ var require_color_name = __commonJS((exports, module) => {
 
 // node_modules/color-convert/conversions.js
 var require_conversions = __commonJS((exports, module) => {
-  var comparativeDistance = function(x, y) {
+  function comparativeDistance(x, y) {
     return (x[0] - y[0]) ** 2 + (x[1] - y[1]) ** 2 + (x[2] - y[2]) ** 2;
-  };
+  }
   var cssKeywords = require_color_name();
   var reverseKeywords = {};
   for (const key of Object.keys(cssKeywords)) {
@@ -1722,7 +1722,7 @@ var require_conversions = __commonJS((exports, module) => {
 
 // node_modules/color-convert/route.js
 var require_route = __commonJS((exports, module) => {
-  var buildGraph = function() {
+  function buildGraph() {
     const graph = {};
     const models = Object.keys(conversions);
     for (let len = models.length, i = 0;i < len; i++) {
@@ -1732,8 +1732,8 @@ var require_route = __commonJS((exports, module) => {
       };
     }
     return graph;
-  };
-  var deriveBFS = function(fromModel) {
+  }
+  function deriveBFS(fromModel) {
     const graph = buildGraph();
     const queue = [fromModel];
     graph[fromModel].distance = 0;
@@ -1751,13 +1751,13 @@ var require_route = __commonJS((exports, module) => {
       }
     }
     return graph;
-  };
-  var link = function(from, to) {
+  }
+  function link(from, to) {
     return function(args) {
       return to(from(args));
     };
-  };
-  var wrapConversion = function(toModel, graph) {
+  }
+  function wrapConversion(toModel, graph) {
     const path = [graph[toModel].parent, toModel];
     let fn = conversions[graph[toModel].parent][toModel];
     let cur = graph[toModel].parent;
@@ -1768,7 +1768,7 @@ var require_route = __commonJS((exports, module) => {
     }
     fn.conversion = path;
     return fn;
-  };
+  }
   var conversions = require_conversions();
   module.exports = function(fromModel) {
     const graph = deriveBFS(fromModel);
@@ -1788,7 +1788,7 @@ var require_route = __commonJS((exports, module) => {
 
 // node_modules/color-convert/index.js
 var require_color_convert = __commonJS((exports, module) => {
-  var wrapRaw = function(fn) {
+  function wrapRaw(fn) {
     const wrappedFn = function(...args) {
       const arg0 = args[0];
       if (arg0 === undefined || arg0 === null) {
@@ -1803,8 +1803,8 @@ var require_color_convert = __commonJS((exports, module) => {
       wrappedFn.conversion = fn.conversion;
     }
     return wrappedFn;
-  };
-  var wrapRounded = function(fn) {
+  }
+  function wrapRounded(fn) {
     const wrappedFn = function(...args) {
       const arg0 = args[0];
       if (arg0 === undefined || arg0 === null) {
@@ -1825,7 +1825,7 @@ var require_color_convert = __commonJS((exports, module) => {
       wrappedFn.conversion = fn.conversion;
     }
     return wrappedFn;
-  };
+  }
   var conversions = require_conversions();
   var route = require_route();
   var convert = {};
@@ -1847,7 +1847,7 @@ var require_color_convert = __commonJS((exports, module) => {
 
 // node_modules/ansi-styles/index.js
 var require_ansi_styles = __commonJS((exports, module) => {
-  var assembleStyles = function() {
+  function assembleStyles() {
     const codes = new Map;
     const styles = {
       modifier: {
@@ -1928,7 +1928,7 @@ var require_ansi_styles = __commonJS((exports, module) => {
     setLazyProperty(styles.bgColor, "ansi256", () => makeDynamicStyles(wrapAnsi256, "ansi256", ansi2ansi, true));
     setLazyProperty(styles.bgColor, "ansi16m", () => makeDynamicStyles(wrapAnsi16m, "rgb", rgb2rgb, true));
     return styles;
-  };
+  }
   var wrapAnsi16 = (fn, offset) => (...args) => {
     const code = fn(...args);
     return `\x1B[${code + offset}m`;
@@ -1993,7 +1993,7 @@ var require_has_flag = __commonJS((exports, module) => {
 
 // node_modules/supports-color/index.js
 var require_supports_color = __commonJS((exports, module) => {
-  var translateLevel = function(level) {
+  function translateLevel(level) {
     if (level === 0) {
       return false;
     }
@@ -2003,8 +2003,8 @@ var require_supports_color = __commonJS((exports, module) => {
       has256: level >= 2,
       has16m: level >= 3
     };
-  };
-  var supportsColor = function(haveStream, streamIsTTY) {
+  }
+  function supportsColor(haveStream, streamIsTTY) {
     if (forceColor === 0) {
       return 0;
     }
@@ -2059,11 +2059,11 @@ var require_supports_color = __commonJS((exports, module) => {
       return 1;
     }
     return min;
-  };
-  var getSupportLevel = function(stream) {
+  }
+  function getSupportLevel(stream) {
     const level = supportsColor(stream, stream && stream.isTTY);
     return translateLevel(level);
-  };
+  }
   var os = __require("os");
   var tty = __require("tty");
   var hasFlag = require_has_flag();
@@ -2128,7 +2128,7 @@ var require_util = __commonJS((exports, module) => {
 
 // node_modules/chalk/source/templates.js
 var require_templates = __commonJS((exports, module) => {
-  var unescape = function(c) {
+  function unescape(c) {
     const u = c[0] === "u";
     const bracket = c[1] === "{";
     if (u && !bracket && c.length === 5 || c[0] === "x" && c.length === 3) {
@@ -2138,8 +2138,8 @@ var require_templates = __commonJS((exports, module) => {
       return String.fromCodePoint(parseInt(c.slice(2, -1), 16));
     }
     return ESCAPES.get(c) || c;
-  };
-  var parseArguments = function(name, arguments_) {
+  }
+  function parseArguments(name, arguments_) {
     const results = [];
     const chunks = arguments_.trim().split(/\s*,\s*/g);
     let matches;
@@ -2154,8 +2154,8 @@ var require_templates = __commonJS((exports, module) => {
       }
     }
     return results;
-  };
-  var parseStyle = function(style) {
+  }
+  function parseStyle(style) {
     STYLE_REGEX.lastIndex = 0;
     const results = [];
     let matches;
@@ -2169,8 +2169,8 @@ var require_templates = __commonJS((exports, module) => {
       }
     }
     return results;
-  };
-  var buildStyle = function(chalk, styles) {
+  }
+  function buildStyle(chalk, styles) {
     const enabled = {};
     for (const layer of styles) {
       for (const style of layer.styles) {
@@ -2188,7 +2188,7 @@ var require_templates = __commonJS((exports, module) => {
       current = styles2.length > 0 ? current[styleName](...styles2) : current[styleName];
     }
     return current;
-  };
+  }
   var TEMPLATE_REGEX = /(?:\\(u(?:[a-f\d]{4}|\{[a-f\d]{1,6}\})|x[a-f\d]{2}|.))|(?:\{(~)?(\w+(?:\([^)]*\))?(?:\.\w+(?:\([^)]*\))?)*)(?:[ \t]|(?=\r?\n)))|(\})|((?:.|[\r\n\f])+?)/gi;
   var STYLE_REGEX = /(?:^|\.)(\w+)(?:\(([^)]*)\))?/g;
   var STRING_REGEX = /^(['"])((?:\\.|(?!\1)[^\\])*)\1$/;
@@ -2239,9 +2239,9 @@ var require_templates = __commonJS((exports, module) => {
 
 // node_modules/chalk/source/index.js
 var require_source = __commonJS((exports, module) => {
-  var Chalk = function(options) {
+  function Chalk(options) {
     return chalkFactory(options);
-  };
+  }
   var ansiStyles = require_ansi_styles();
   var { stdout: stdoutColor, stderr: stderrColor } = require_supports_color();
   var {
@@ -2537,7 +2537,8 @@ class Request {
   }
   send(address = "127.0.0.1", port, message) {
     const messageBuffer = Buffer.from(JSON.stringify(message));
-    this.socket.send(messageBuffer, 0, messageBuffer.length, port, address);
+    this.socket.send(messageBuffer, 0, messageBuffer.length, port, "127.0.0.1");
+    console.log(address, messageBuffer);
   }
 }
 Request = __legacyDecorateClassTS([
@@ -2773,9 +2774,6 @@ class Entity {
 
 // entity/Idenity.ts
 class Idenity extends Entity {
-  constructor() {
-    super(...arguments);
-  }
   name = null;
   physicalAddress = null;
   ipv4 = null;
@@ -2836,9 +2834,6 @@ class IdentityFacade {
 
 // entity/Search.ts
 class Search extends Entity {
-  constructor() {
-    super(...arguments);
-  }
   name = null;
   content = [];
   status = "requesting";
@@ -2945,9 +2940,6 @@ class AbstractFileContext {
 
 // contexts/file/byContent/Content.ts
 class Content extends AbstractFileContext {
-  constructor() {
-    super(...arguments);
-  }
   match(dir) {
     return false;
   }
@@ -2956,9 +2948,6 @@ class Content extends AbstractFileContext {
 // contexts/file/byLocal/Local.ts
 import {extname} from "path";
 class Local extends AbstractFileContext {
-  constructor() {
-    super(...arguments);
-  }
   match(dir, criteria) {
     let isValid = true;
     if (!this.includeKeys(criteria.keys, dir)) {
@@ -3061,6 +3050,7 @@ class SearchController {
     const manager = Database.getManager();
     const repository = Database.getRepository();
     const slug = body.data.search.slug;
+    console.log("body data ", body.data.identity);
     const identity = new Idenity().set(body.data.identity);
     const search = repository.getBySlug(slug, new Search);
     search?.addfounders(identity);
@@ -3114,8 +3104,9 @@ class IdentityService {
   init(server) {
     const repository = Database.getRepository();
     const networkInfo = new Network().getIpv4Info(server.getUseInterface());
+    console.log("networkInfo", networkInfo);
     let identity = new Idenity;
-    identity = repository.getDataByIndex(0, identity);
+    identity = repository.getBySlug(identity.getslug(), identity);
     if (!identity && networkInfo) {
       const manager = Database.getManager();
       identity = new Idenity;
@@ -3224,9 +3215,6 @@ class SearchFacade {
 
 // entity/Chat.ts
 class Chat extends Entity {
-  constructor() {
-    super(...arguments);
-  }
   name = null;
   user = null;
   discussion = [];
@@ -3314,13 +3302,5 @@ var identity = new IdentityFacade;
 var network = new Network;
 var chat = new ChatFacade;
 system.init();
-identity.update("Shiro Yami");
-search2.create({ name: "Teste", content: [{ keys: ["bad at love"], extension: ".mp3" }] });
-await search2.delete("b0392ffee156ca704d88abda5bde7cfc");
-var evt = AppEvent.create();
-evt.on("hello").then(function() {
-  console.log("hello event");
-});
-setTimeout(function() {
-  evt.emit("hello");
-}, 2000);
+identity.update("Shiro y");
+search2.create({ name: "Teste", content: [{ keys: ["Halsey"], extension: ".mp3" }] });

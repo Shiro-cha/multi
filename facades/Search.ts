@@ -23,6 +23,7 @@ export class SearchFacade{
         .setstatus("requesting")
         .setsearcher(identity);
         this.manager.create(newSearch);
+        
         this.makeRequest(newSearch);
         
     }
@@ -68,11 +69,13 @@ export class SearchFacade{
 
     private makeRequest(newSearch:Search){
         const server = Multicast.getConnexion();
-
+        
+        
         const socket = server.getSocket();
         if(!socket){
             throw "Failed to connect"
         }
+        
         const request = new Request(socket);
         request.send(server.getAddress(),server.getPort(),{label:"/search",data:newSearch})
     }

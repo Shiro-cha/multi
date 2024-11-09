@@ -9,8 +9,10 @@ export class IdentityService{
     init(server:Multicast){
         const repository = Database.getRepository();
         const networkInfo = new Network().getIpv4Info(server.getUseInterface())
+        console.log("networkInfo",networkInfo);
+        
         let identity = new Idenity();
-        identity = repository.getDataByIndex(0,identity);
+        identity = repository.getBySlug(identity.getslug(),identity);
         if(!identity && networkInfo){
             const manager = Database.getManager();
             

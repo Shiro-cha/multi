@@ -15,7 +15,7 @@ export abstract class AbstractFileContext implements IFileContext{
             if(!this.isHidden(dir) && this.match(fullpath,criteria)){
                 matchs.push(fullpath);
             };
-            if(this.isValidDir(fullpath) && !this.isHidden(dir)){
+            if(this.isValidDir(fullpath) && !this.isHidden(dir) ){
                 matchs.push(...this.scan(criteria,fullpath));
             }
         });
@@ -23,7 +23,7 @@ export abstract class AbstractFileContext implements IFileContext{
     }
 
     private isValidDir(dir:string){
-        const exceptions = ["node_modules","vendor",".git"]
+        const exceptions = ["node_modules","vendor",".git","AppData","Application Data","Cookies"]
         const isDirectory = statSync(dir).isDirectory();
         let includeExceptions = false;
         exceptions.forEach((exception)=>{
