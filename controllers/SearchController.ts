@@ -12,14 +12,14 @@ import { AppEvent } from "../core/AppEvent";
 export class SearchController{
 
     search(body:{data:any,socket:Socket,rinfo:any}){
-
+        
+        
         const searchBody = body.data;
         const identity = new IdentityFacade().get();
         const request = new Request(body.socket);
         const remoteAddress = body.rinfo.address;
         const remotePort = body.rinfo.port;
         //TODO: implement search
-        
         
         const searcherContext = Factory.create("file");
         
@@ -28,13 +28,11 @@ export class SearchController{
             request.send(remoteAddress,remotePort,{label:"/found",data:{identity,search:searchBody}})
         }
         
-        
     }
     found(body:{data:any,socket:Socket,rinfo:any}){
         const manager = Database.getManager();
         const repository = Database.getRepository();
         const slug = body.data.search.slug;
-        console.log("body data ",body.data.identity);
         
         const identity = new Idenity().set(body.data.identity);
         const search = repository.getBySlug(slug,new Search());

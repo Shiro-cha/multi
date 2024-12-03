@@ -9726,7 +9726,6 @@ class SearchController {
     const manager = Database.getManager();
     const repository = Database.getRepository();
     const slug = body.data.search.slug;
-    console.log("body data ", body.data.identity);
     const identity = new Idenity().set(body.data.identity);
     const search = repository.getBySlug(slug, new Search);
     search?.addfounders(identity);
