@@ -5,7 +5,7 @@ multi is a TypeScript-based tool built with Bun that facilitates multicast searc
 
     Multicast Search: Perform search operations across multiple clients simultaneously.
 
-    Modular Architecture: Easily extend functionality through a plugin-based system.
+    Modular Architecture: Easily extend functionality through a context-based system.
 
     Real-time Querying: Receive instant search results from connected clients.
 
@@ -24,45 +24,49 @@ Currently, multi does not provide a command-line interface. To utilize its funct
     git clone https://github.com/Shiro-cha/multi.git
     cd multi
 
-Run the Application:
+    Run the Application:
 
+    bun run client/Ar.ts
 
+    Compile to JavaScript:
 
-```bash
-bun run client/Ar.ts
-```
+    bun compile
 
-To compile to Javascript:
+    Compile and Run:
 
-```bash
-bun compile
-```
+    bun cli
 
-To compile and run:
+    Run as Daemon:
 
-```bash
-bun cli
-```
+    bun daemon
 
-To run as daemon:
-
-```bash
-bun daemon
-```
+These commands initiate the multicast search operations as defined in your contexts.
+bun.sh
 📁 Project Structure
 
-    src/: Contains the source code organized into modules.
+    contexts/: Contains modules responsible for handling different contexts of the application.
 
-    plugins/: Directory for modular plugins to extend functionality.
+    clients/: Holds client-side scripts for initiating search operations.
+
+    core/: Core functionalities and utilities used across the application.
+
+    controllers/: Modules that manage the flow of data and control logic.
+
+    services/: Contains services that handle business logic and data processing.
 
     README.md: Project documentation.
+    bun.sh+5Medium+5bun.sh+5
 
 🧩 Extending Functionality
 
-The modular architecture allows for easy integration of plugins. To add a new plugin:
+The modular architecture allows for easy integration of new contexts. To add a new context:
 
-    Create a new file in the plugins/ directory.
+    Create a new file in the contexts/ directory.
 
-    Export a function that defines the plugin's behavior.
+    Export a function that defines the context's behavior.
 
-    Register the plugin in the main application.
+    Register the context in the main application.
+
+📄 License
+
+This project is licensed under the MIT License.
